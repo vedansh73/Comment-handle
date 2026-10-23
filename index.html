@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Automation Hub & Community</title>
+    <style>
+        :root {
+            --primary: #ff0000;
+            --primary-hover: #cc0000;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --log-bg: #090d16;
+            --log-text: #38bdf8;
+            --accent-discord: #5865F2;
+            --accent-telegram: #2AABEE;
+            --accent-youtube: #FF0000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        .dashboard-card {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 26px;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .description {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* Social Quick Links Section */
+        .social-links-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn-yt { background-color: var(--accent-youtube); }
+        .btn-discord { background-color: var(--accent-discord); }
+        .btn-telegram { background-color: var(--accent-telegram); }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 14px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s, transform 0.1s;
+            animation: pulseGlow 3s infinite;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .console-box {
+            margin-top: 25px;
+        }
+
+        .console-header {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #log {
+            background: var(--log-bg);
+            color: var(--log-text);
+            padding: 16px;
+            border-radius: 8px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        @media(max-width: 600px) {
+            .social-links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-card">
+        <div class="header">
+            <div class="header-title">
+                <span class="logo-icon">▶</span>
+                <h2>YouTube Automation Hub</h2>
+            </div>
+            <div class="status-badge">System Ready</div>
+        </div>
+        
+        <p class="description">
+            Connect your YouTube channel to automatically send hearts and custom "Thanks" replies across your live streams, shorts, and regular video comments. Explore our official channels and community links below.
+        </p>
+
+        <!-- Social Media / Community Links -->
+        <div class="social-links-grid">
+            <a href="https://youtube.com/@vedanshsrivastava182?si=2bbBaDrP0RfJfa45" target="_blank" class="social-btn btn-yt">
+                <span>YouTube Channel</span>
+            </a>
+            <a href="https://discord.gg/TGpDsyVpU" target="_blank" class="social-btn btn-discord">
+                <span>Discord Server</span>
+            </a>
+            <a href="https://t.me/+VIG47x9kaJYyODE9" target="_blank" class="social-btn btn-telegram">
+                <span>Telegram Community</span>
+            </a>
+        </div>
+
+        <div class="form-group">
+            <label for="clientIdInput">Google OAuth Client ID</label>
+            <input type="text" id="clientIdInput" placeholder="Enter your Google Cloud Client ID (e.g., xxx.apps.googleusercontent.com)">
+        </div>
+
+        <button class="btn-primary" onclick="handleAuthClick()">Connect Channel & Start Processing</button>
+
+        <div class="console-box">
+            <div class="console-header">
+                <span>Activity Logs</span>
+                <span>Live Feed</span>
+            </div>
+            <div id="log">System initialized successfully. Awaiting authentication...<br></div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'AIzaSyBMB-QBxzbwLTo7Wu0w99wePLo6I-Qwgd8';
+        const SCOPES = 'https://www.googleapis.com/auth/youtube.force-ssl';
+
+        let tokenClient;
+        let accessToken = null;
+
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"],
+                });
+                logMessage("GAPI Client successfully initialized.");
+            } catch (err) {
+                logMessage("Initialization Error: " + (err.message || JSON.stringify(err)));
+            }
+        }
+
+        function gisLoaded() {
+            // Token client initialized dynamically on button click
+        }
+
+        function handleAuthClick() {
+            const clientId = document.getElementById('clientIdInput').value.trim();
+            if (!clientId) {
+                alert("Please enter your Google OAuth Client ID first.");
+                return;
+            }
+
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: SCOPES,
+                callback: (resp) => {
+                    if (resp.error !== undefined) {
+                        logMessage("Authentication Error: " + resp.error);
+                        return;
+                    }
+                    accessToken = resp.access_token;
+                    logMessage("Authentication successful! Fetching recent comments...");
+                    fetchAndProcessComments();
+                },
+            });
+
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        }
+
+        function logMessage(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += `> ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function fetchAndProcessComments() {
+            try {
+                const response = await gapi.client.youtube.commentThreads.list({
+                    part: "snippet,replies",
+                    allThreadsRelatedToChannelId: "MINE",
+                    maxResults: 15
+                });
+
+                const items = response.result.items;
+                if (!items || items.length === 0) {
+                    logMessage("No new comments found to process.");
+                    return;
+                }
+
+                logMessage(`Found ${items.length} recent comment thread(s). Processing...`);
+
+                for (let item of items) {
+                    const commentId = item.snippet.topLevelComment.id;
+                    const author = item.snippet.topLevelComment.snippet.authorDisplayName;
+                    const text = item.snippet.topLevelComment.snippet.textDisplay;
+
+                    logMessage(`[Comment] ${author}: "${text}"`);
+                    
+                    // 1. Give Heart (Like)
+                    await heartComment(commentId);
+                    
+                    // 2. Send Reply
+                    await replyToComment(commentId, "Thanks for watching! ❤️");
+                }
+                logMessage("All tasks completed successfully.");
+            } catch (err) {
+                logMessage("API Error: " + JSON.stringify(err.result ? err.result.error.message : err));
+            }
+        }
+
+        async function heartComment(commentId) {
+            try {
+                await gapi.client.youtube.comments.update({
+                    part: "snippet",
+                    resource: {
+                        id: commentId,
+                        snippet: {
+                            viewerRating: "like"
+                        }
+                    }
+                });
+                logMessage(`  ↳ Heart added successfully (ID: ${commentId})`);
+            } catch (e) {
+                logMessage(`  ↳ Failed to add heart: ${e.message || e}`);
+            }
+        }
+
+        async function replyToComment(parentId, text) {
+            try {
+                await gapi.client.youtube.comments.insert({
+                    part: "snippet",
+                    resource: {
+                        snippet: {
+                            parentId: parentId,
+                            textOriginal: text
+                        }
+                    }
+                });
+                logMessage(`  ↳ Reply sent: "${text}"`);
+            } catch (e) {
+                logMessage(`  ↳ Failed to send reply: ${e.message || e}`);
+            }
+        }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/js/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
